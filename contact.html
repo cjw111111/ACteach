@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>联系人管理</title>
+</head>
+<body>
+    <h1>联系人管理</h1>
+    <div>
+        <h2>添加联系人</h2>
+        <input type="text" id="name" placeholder="姓名">
+        <input type="text" id="phone" placeholder="电话">
+        <input type="text" id="email" placeholder="邮箱">
+        <input type="text" id="address" placeholder="地址">
+        <button onclick="addContact()">添加</button>
+    </div>
+    <div>
+        <h2>联系人列表</h2>
+        <ul id="contactList"></ul>
+    </div>
+    <div>
+        <h2>修改联系人</h2>
+        <input type="text" id="oldName" placeholder="原姓名">
+        <input type="text" id="newName" placeholder="新姓名">
+        <input type="text" id="newPhone" placeholder="新电话">
+        <input type="text" id="newEmail" placeholder="新邮箱">
+        <input type="text" id="newAddress" placeholder="新地址">
+        <button onclick="updateContact()">修改</button>
+    </div>
+    <div>
+        <h2>删除联系人</h2>
+        <input type="text" id="deleteName" placeholder="要删除的姓名">
+        <button onclick="deleteContact()">删除</button>
+    </div>
+
+    <script>
+        // 获取联系人列表
+        function getContactList() {
+            fetch('/getContactList') // 发起GET请求
+                .then(response => response.json()) // 将响应转换为JSON格式
+                .then(data => {
+                    const contactList = document.getElementById('contactList');
+                    contactList.innerHTML = ''; // 清空列表
+
+                    data.forEach(contact => {
+                        const li = document.createElement('li');
+                        li.textContent = `姓名：${contact.name}，电话：${contact.phone}，邮箱：${contact.email}，地址：${contact.address}`;
+                        contactList.appendChild(li); // 将联系人添加到列表中
+                    });
+                });
+        }
+
+        // 添加联系人
+        function addContact() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+
+            fetch('/addContact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    address: address
+                })
+            })
+                .then(() => {
+                    clearInputFields(); // 清空输入字段
+                    getContactList(); // 刷新联系人列表
+                });
+        }
+
+        // 修改联系人
+        function updateContact() {
+            const oldName = document.getElementById('oldName').value;
+            const newName = document.getElementById('newName').value;
+            const newPhone = document.getElementById('newPhone').value;
+            const newEmail = document.getElementById('newEmail').value;
+            const newAddress = document.getElementById('newAddress').value;
+
+            fetch('/updateContact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    oldName: oldName,
+                    newName: newName,
+                    newPhone: newPhone,
+                    newEmail: newEmail,
+                    newAddress: newAddress
+                })
+            })
+                .then(() => {
+                    clearInputFields(); // 清空输入字段
+                    getContactList(); // 刷新联系人列表
+                });
+        }
+
+        // 删除联系人
+        function deleteContact() {
+            const deleteName = document.getElementById('deleteName').value;
+
+            fetch('/deleteContact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: deleteName
+                })
+            })
+                .then(() => {
+                    clearInputFields(); // 清空输入字段
+                    getContactList(); // 刷新联系人列表
+                });
+        }
+
+        // 清空输入字段
+        function clearInputFields() {
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('newName').value = '';
+            document.getElementById('newPhone').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newaddress').value = '';
+        }
+    </script>
+</body>
